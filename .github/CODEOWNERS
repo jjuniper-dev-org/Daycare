@@ -1,0 +1,8 @@
+# Human owner for production and governance-sensitive changes.
+* @jjuniper-dev
+
+# Keep governance and automation changes explicitly owned.
+/.github/ @jjuniper-dev
+/docs/ @jjuniper-dev
+/evidence/ @jjuniper-dev
+/index.html @jjuniper-dev
