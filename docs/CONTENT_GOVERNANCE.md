@@ -6,6 +6,23 @@ Maintain the public RSGE planner with a traceable human-in-the-loop process:
 
 **Report → Jira → Research agent → Evidence → Proposed website change → HITL approval → GitHub → Deploy → Close Jira**
 
+## Dedicated Jira project
+
+Daycare content governance uses a dedicated Jira project:
+
+- **Project name:** Daycare
+- **Project key:** `DAYCARE`
+- **Purpose:** website accuracy reports, regulatory research, proposed content changes, HITL approvals, deployment traceability and closure.
+
+Do not mix Daycare governance work into unrelated Jira projects such as EAID or PCA.
+
+Recommended issue use:
+
+- **Bug** — alleged factual or regulatory inaccuracy.
+- **Task** — maintenance, clarification, source refresh or operational work.
+- **Story** — larger user-facing improvement.
+- **Epic** — optional grouping for major themes such as Recognition, Financial Model, Compliance or Automation.
+
 ## Control principles
 
 1. **Primary-source first.** Legal or regulatory claims must be supported by Québec legislation, Québec government guidance, or the responsible Bureau coordonnateur where applicable.
@@ -19,7 +36,7 @@ Maintain the public RSGE planner with a traceable human-in-the-loop process:
 
 | State | Owner | Exit condition |
 | --- | --- | --- |
-| Reported | Intake automation | Jira item created with GitHub report linked |
+| Reported | Intake automation | DAYCARE Jira item created with GitHub report linked |
 | Researching | Research agent | Sources collected and claim assessed |
 | Needs evidence | Human / reporter | Missing or conflicting authoritative evidence resolved |
 | Change proposed | Research agent | Draft PR created with evidence and impact statement |
@@ -67,11 +84,18 @@ A research-agent PR must include the following checklist and remain unmerged unt
 
 Recommended Jira issue type: **Bug** for an alleged factual inaccuracy, **Task** for clarification or maintenance.
 
-Recommended fields/labels:
+Recommended labels:
 
-- `source:website-report`
-- `component:daycare-planner`
-- `risk:wording | deadline | capacity | financial`
+- `daycare-planner`
+- `accuracy-report`
+- `source-github`
+- `risk-wording`
+- `risk-deadline`
+- `risk-capacity`
+- `risk-financial`
+
+Evidence should also retain:
+
 - GitHub issue URL
 - Source URL(s)
 - Research confidence
@@ -80,14 +104,14 @@ Recommended fields/labels:
 
 ## Secrets and runtime configuration
 
-The GitHub workflows are designed to use repository secrets/variables rather than hard-coded credentials.
+The GitHub workflows use repository secrets rather than hard-coded credentials.
 
 Expected configuration:
 
-- `JIRA_BASE_URL` — e.g. `https://<site>.atlassian.net`
+- `JIRA_BASE_URL` — `https://junip1dev.atlassian.net`
 - `JIRA_EMAIL` — service-account email
 - `JIRA_API_TOKEN` — service-account API token
-- `JIRA_PROJECT_KEY` — project selected for Daycare reports
+- `JIRA_PROJECT_KEY` — optional override; defaults to `DAYCARE`
 - `OPENAI_API_KEY` — only if the research-agent workflow is enabled
 
 Do not place credentials in the repository.
