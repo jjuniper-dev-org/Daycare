@@ -1,0 +1,71 @@
+name: Report an inaccuracy
+description: Report incorrect, outdated, unclear, or unsupported content on the RSGE planner.
+title: "[Accuracy] "
+labels:
+  - accuracy-report
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the planner. Please do not include personal or sensitive information.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Page area
+      options:
+        - Outcome / route
+        - Target recognition date / deadlines
+        - Kid & income calculator
+        - Recognition board / checklist
+        - Legal & operating detail
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: What appears inaccurate?
+      description: Quote or summarize the current statement, number, rule, or behaviour.
+      placeholder: The page currently says...
+    validations:
+      required: true
+
+  - type: textarea
+    id: correction
+    attributes:
+      label: Suggested correction
+      description: What should it say or do instead?
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Authoritative source URL
+      description: Prefer Québec legislation, Québec government, Bureau coordonnateur, or another primary source.
+      placeholder: https://...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Potential impact
+      options:
+        - Informational wording only
+        - Could change a deadline or required task
+        - Could change capacity / legal eligibility
+        - Could change financial calculations
+        - Unsure
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: attestation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have not included personal, medical, financial-account, or other sensitive information.
+          required: true
