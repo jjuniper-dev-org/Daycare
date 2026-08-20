@@ -76,6 +76,39 @@ A research-agent PR must include the following checklist and remain unmerged unt
 - [ ] RSGE Jira issue linked.
 - [ ] Human reviewer approved.
 
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on pull requests to `main`, pushes to `main`, and manual dispatches. The required `validate` job uses `scripts/ci_check.py` and must remain dependency-light so the planner can be validated without a build system.
+
+The CI contract checks:
+
+- required planner/governance files exist;
+- merge-conflict markers and YAML tab errors are absent;
+- required HTML structure and DOM IDs remain present;
+- the controlled inaccuracy-report issue-template link remains wired;
+- key planning/legal disclaimers remain visible;
+- inline JavaScript passes `node --check`;
+- HITL governance safeguards remain present in the Jira/research/deployment workflows.
+
+Any future test suite should be added behind this same required CI job or as additional required status checks.
+
+## Main branch protection policy
+
+The GitHub ruleset for `main` should be **Active** and target the repository default branch. It should enforce:
+
+- Require a pull request before merging.
+- Require **1 approving review**.
+- Dismiss stale approvals when new commits are pushed.
+- Require review from Code Owners; `.github/CODEOWNERS` assigns the human owner.
+- Require status checks to pass before merging.
+- Required check: `validate` from the `CI` workflow.
+- Require the branch to be up to date before merging.
+- Require conversation resolution before merging.
+- Block force pushes.
+- Block branch deletion.
+
+Bot/research-agent pull requests are expected to be authored by automation so the human Code Owner can provide the required approval. Administrator bypass should be reserved for recovery only, not normal content changes.
+
 ## Jira mapping
 
 Current intake issue type: **Task**.
@@ -112,15 +145,16 @@ The GitHub workflows use repository secrets rather than hard-coded credentials.
 
 Expected configuration:
 
-- `JIRA_BASE_URL` — `https://junip1dev.atlassian.net`
-- `JIRA_EMAIL` — service-account email
-- `JIRA_API_TOKEN` — service-account API token
-- `JIRA_PROJECT_KEY` — optional override; defaults to `RSGE`
-- `RESEARCH_AGENT_WEBHOOK_URL` — optional research-agent integration endpoint
-- `OPENAI_API_KEY` — only if an OpenAI-backed research-agent runtime is enabled
+- `JIRA_BASE_URL` — Jira REST API base for the credential type in use; scoped Atlassian tokens use `https://api.atlassian.com/ex/jira/<cloud-id>`.
+- `JIRA_SITE_URL` — optional public Jira site URL used when generating browser links; defaults to the RSGE site.
+- `JIRA_EMAIL` — service-account / Atlassian account email.
+- `JIRA_API_TOKEN` — Atlassian API token.
+- `JIRA_PROJECT_KEY` — optional override; defaults to `RSGE`.
+- `RESEARCH_AGENT_WEBHOOK_URL` — optional research-agent integration endpoint.
+- `OPENAI_API_KEY` — only if an OpenAI-backed research-agent runtime is enabled.
 
 Do not place credentials in the repository.
 
 ## Deployment
 
-GitHub Pages deploys only from approved content merged to `main`. Branch protection should require at least one approving review for bot-created PRs before merge.
+GitHub Pages deploys only from approved content merged to `main`. Deployment success must eventually be verified before Jira is automatically transitioned to Done; until that verification is implemented, keep the automatic Done transition disabled.
