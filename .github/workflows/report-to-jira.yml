@@ -2,20 +2,46 @@ name: Accuracy report → Jira
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 permissions:
   contents: read
   issues: write
 
+concurrency:
+  group: accuracy-report-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
 jobs:
   create-jira:
     if: >-
-      contains(github.event.issue.labels.*.name, 'accuracy-report') ||
-      startsWith(github.event.issue.title, '[Accuracy]') ||
-      startsWith(github.event.issue.title, 'Accuracy report')
+      (github.event.action == 'opened' && (
+        contains(github.event.issue.labels.*.name, 'accuracy-report') ||
+        startsWith(github.event.issue.title, '[Accuracy]') ||
+        startsWith(github.event.issue.title, 'Accuracy report') ||
+        startsWith(github.event.issue.title, 'Content accuracy report') ||
+        contains(github.event.issue.body || '', 'Possible inaccuracy:') ||
+        contains(github.event.issue.body || '', 'What appears incorrect:')
+      )) ||
+      (github.event.action == 'labeled' && github.event.label.name == 'accuracy-report')
     runs-on: ubuntu-latest
     steps:
+      - name: Check for an existing Jira link
+        id: existing
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing=$(gh api \
+            "repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments" \
+            --paginate \
+            --jq '.[].body' 2>/dev/null | grep -m1 -E 'Created Jira task \*\*\[RSGE-[0-9]+\]' || true)
+          if [[ -n "$existing" ]]; then
+            echo "linked=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "linked=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Validate configuration
         id: config
         shell: bash
@@ -32,7 +58,7 @@ jobs:
           echo "ready=true" >> "$GITHUB_OUTPUT"
 
       - name: Create Jira task
-        if: steps.config.outputs.ready == 'true'
+        if: steps.config.outputs.ready == 'true' && steps.existing.outputs.linked != 'true'
         id: jira
         shell: bash
         env:
@@ -40,6 +66,7 @@ jobs:
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           JIRA_PROJECT_KEY: ${{ vars.JIRA_PROJECT_KEY || 'RSGE' }}
+          JIRA_SITE_URL: ${{ vars.JIRA_SITE_URL || 'https://junip1dev.atlassian.net' }}
           GH_TITLE: ${{ github.event.issue.title }}
           GH_BODY: ${{ github.event.issue.body }}
           GH_URL: ${{ github.event.issue.html_url }}
@@ -81,10 +108,10 @@ jobs:
           echo "$response" > jira-response.json
           key=$(python -c "import json; print(json.load(open('jira-response.json'))['key'])")
           echo "key=$key" >> "$GITHUB_OUTPUT"
-          echo "url=$JIRA_BASE_URL/browse/$key" >> "$GITHUB_OUTPUT"
+          echo "url=$JIRA_SITE_URL/browse/$key" >> "$GITHUB_OUTPUT"
 
       - name: Link Jira ticket back to report
-        if: steps.config.outputs.ready == 'true'
+        if: steps.config.outputs.ready == 'true' && steps.existing.outputs.linked != 'true' && steps.jira.outputs.key != ''
         env:
           GH_TOKEN: ${{ github.token }}
           JIRA_KEY: ${{ steps.jira.outputs.key }}
@@ -95,7 +122,7 @@ jobs:
             --body "Created Jira task **[$JIRA_KEY]($JIRA_URL)** in the dedicated **RSGE Recognition Planner** project. Next state: research and evidence collection. Production changes remain human-approved only."
 
       - name: Configuration notice
-        if: steps.config.outputs.ready != 'true'
+        if: steps.config.outputs.ready != 'true' && steps.existing.outputs.linked != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
