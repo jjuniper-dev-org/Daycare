@@ -23,7 +23,7 @@ jobs:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          JIRA_PROJECT_KEY: ${{ vars.JIRA_PROJECT_KEY }}
+          JIRA_PROJECT_KEY: ${{ vars.JIRA_PROJECT_KEY || 'DAYCARE' }}
         run: |
           if [[ -z "$JIRA_BASE_URL" || -z "$JIRA_EMAIL" || -z "$JIRA_API_TOKEN" || -z "$JIRA_PROJECT_KEY" ]]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
@@ -39,7 +39,7 @@ jobs:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          JIRA_PROJECT_KEY: ${{ vars.JIRA_PROJECT_KEY }}
+          JIRA_PROJECT_KEY: ${{ vars.JIRA_PROJECT_KEY || 'DAYCARE' }}
           GH_TITLE: ${{ github.event.issue.title }}
           GH_BODY: ${{ github.event.issue.body }}
           GH_URL: ${{ github.event.issue.html_url }}
@@ -92,7 +92,7 @@ jobs:
         run: |
           gh issue comment "${{ github.event.issue.number }}" \
             --repo "${{ github.repository }}" \
-            --body "Created Jira ticket **[$JIRA_KEY]($JIRA_URL)**. Next state: research and evidence collection. Production changes remain human-approved only."
+            --body "Created Jira ticket **[$JIRA_KEY]($JIRA_URL)** in the dedicated Daycare project. Next state: research and evidence collection. Production changes remain human-approved only."
 
       - name: Configuration notice
         if: steps.config.outputs.ready != 'true'
@@ -101,4 +101,4 @@ jobs:
         run: |
           gh issue comment "${{ github.event.issue.number }}" \
             --repo "${{ github.repository }}" \
-            --body "Accuracy report captured. Jira automation is scaffolded but not active yet: repository Jira secrets/variable still need configuration."
+            --body "Accuracy report captured. Jira automation targets the dedicated **DAYCARE** project, but Jira credentials still need to be configured in repository secrets before ticket creation can run."
