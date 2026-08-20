@@ -1,0 +1,136 @@
+name: Jira research request → evidence package
+
+on:
+  workflow_dispatch:
+    inputs:
+      jira_key:
+        description: Jira issue key
+        required: true
+        type: string
+      github_issue:
+        description: Related GitHub issue number
+        required: false
+        type: string
+  repository_dispatch:
+    types: [jira_research_requested]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  prepare-research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve request
+        id: req
+        shell: bash
+        env:
+          INPUT_JIRA: ${{ inputs.jira_key }}
+          INPUT_ISSUE: ${{ inputs.github_issue }}
+          EVENT_JIRA: ${{ github.event.client_payload.jira_key }}
+          EVENT_ISSUE: ${{ github.event.client_payload.github_issue }}
+        run: |
+          JIRA_KEY="${INPUT_JIRA:-$EVENT_JIRA}"
+          GH_ISSUE="${INPUT_ISSUE:-$EVENT_ISSUE}"
+          if [[ -z "$JIRA_KEY" ]]; then
+            echo "Missing jira_key" >&2
+            exit 1
+          fi
+          echo "jira_key=$JIRA_KEY" >> "$GITHUB_OUTPUT"
+          echo "github_issue=$GH_ISSUE" >> "$GITHUB_OUTPUT"
+
+      - name: Create evidence workspace
+        shell: bash
+        env:
+          JIRA_KEY: ${{ steps.req.outputs.jira_key }}
+          GH_ISSUE: ${{ steps.req.outputs.github_issue }}
+        run: |
+          mkdir -p evidence
+          cat > "evidence/$JIRA_KEY.md" <<EOF
+          # Evidence package — $JIRA_KEY
+
+          GitHub report: ${GH_ISSUE:+https://github.com/${{ github.repository }}/issues/$GH_ISSUE}
+
+          ## Claim under review
+
+          _Research agent fills this._
+
+          ## Authoritative sources
+
+          _Prefer Légis Québec, Québec.ca, Ministère de la Famille, or the responsible Bureau coordonnateur._
+
+          ## Current/effective date check
+
+          _Record the effective/current date of any legal or program source._
+
+          ## Findings
+
+          _State whether the current website is correct, incorrect, outdated, ambiguous, or unsupported._
+
+          ## Proposed correction
+
+          _Smallest safe correction._
+
+          ## Impact assessment
+
+          - [ ] Wording only
+          - [ ] Deadline / task sequencing
+          - [ ] Legal eligibility / capacity
+          - [ ] Financial / calculator logic
+          - [ ] Other
+
+          ## Confidence
+
+          `low | medium | high`
+
+          ## HITL status
+
+          **Not approved.** A human reviewer must verify the evidence before merge.
+          EOF
+
+      - name: Agent integration gate
+        shell: bash
+        env:
+          RESEARCH_AGENT_WEBHOOK_URL: ${{ secrets.RESEARCH_AGENT_WEBHOOK_URL }}
+          JIRA_KEY: ${{ steps.req.outputs.jira_key }}
+          GH_ISSUE: ${{ steps.req.outputs.github_issue }}
+        run: |
+          if [[ -z "$RESEARCH_AGENT_WEBHOOK_URL" ]]; then
+            echo "No research-agent endpoint configured yet. Evidence workspace has been created as a controlled placeholder."
+            exit 0
+          fi
+          curl --fail-with-body -sS \
+            -H 'Content-Type: application/json' \
+            -X POST "$RESEARCH_AGENT_WEBHOOK_URL" \
+            --data "{\"repository\":\"${{ github.repository }}\",\"jira_key\":\"$JIRA_KEY\",\"github_issue\":\"$GH_ISSUE\",\"evidence_path\":\"evidence/$JIRA_KEY.md\",\"policy\":\"propose-only-hitl-required\"}"
+
+      - name: Preserve evidence scaffold
+        shell: bash
+        env:
+          JIRA_KEY: ${{ steps.req.outputs.jira_key }}
+        run: |
+          branch="research/${JIRA_KEY,,}"
+          git config user.name "daycare-research-bot"
+          git config user.email "daycare-research-bot@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add "evidence/$JIRA_KEY.md"
+          git commit -m "Start evidence package for $JIRA_KEY"
+          git push origin "$branch"
+          echo "BRANCH=$branch" >> "$GITHUB_ENV"
+
+      - name: Open draft HITL pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JIRA_KEY: ${{ steps.req.outputs.jira_key }}
+        run: |
+          gh pr create \
+            --repo "${{ github.repository }}" \
+            --base main \
+            --head "$BRANCH" \
+            --draft \
+            --title "[$JIRA_KEY] Research and proposed content correction" \
+            --body "Jira: **$JIRA_KEY**\n\nThis PR is the controlled research workspace. The bot may add evidence and propose the smallest safe website correction here. **Do not merge without human verification and approval.**\n\nSee \`docs/CONTENT_GOVERNANCE.md\` for the evidence and HITL requirements."
