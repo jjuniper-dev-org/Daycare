@@ -10,7 +10,10 @@ permissions:
 
 jobs:
   create-jira:
-    if: contains(github.event.issue.labels.*.name, 'accuracy-report')
+    if: >-
+      contains(github.event.issue.labels.*.name, 'accuracy-report') ||
+      startsWith(github.event.issue.title, '[Accuracy]') ||
+      startsWith(github.event.issue.title, 'Accuracy report')
     runs-on: ubuntu-latest
     steps:
       - name: Validate configuration
