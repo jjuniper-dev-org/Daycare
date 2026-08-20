@@ -1,0 +1,73 @@
+name: Approved merge → Jira deployment trace
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  trace-deployment:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Jira key
+        id: jira
+        shell: bash
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          key=$(printf '%s' "$PR_TITLE" | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' | head -1 || true)
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+
+      - name: Add deployment evidence to Jira
+        if: steps.jira.outputs.key != ''
+        shell: bash
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_KEY: ${{ steps.jira.outputs.key }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          if [[ -z "$JIRA_BASE_URL" || -z "$JIRA_EMAIL" || -z "$JIRA_API_TOKEN" ]]; then
+            echo "Jira credentials not configured; skipping Jira trace update."
+            exit 0
+          fi
+          python - <<'PY' > comment.json
+          import json, os
+          msg = (
+            "Approved Daycare website change merged.\n\n"
+            f"Pull request: {os.environ['PR_URL']}\n"
+            f"Merge commit: {os.environ['MERGE_SHA']}\n\n"
+            "GitHub Pages deployment follows the main-branch deployment configuration."
+          )
+          print(json.dumps({"body":{"type":"doc","version":1,"content":[{"type":"paragraph","content":[{"type":"text","text":msg}]}]}}))
+          PY
+          curl --fail-with-body -sS \
+            -u "$JIRA_EMAIL:$JIRA_API_TOKEN" \
+            -H 'Content-Type: application/json' \
+            -X POST "$JIRA_BASE_URL/rest/api/3/issue/$JIRA_KEY/comment" \
+            --data @comment.json
+
+      - name: Optional Jira Done transition
+        if: steps.jira.outputs.key != ''
+        shell: bash
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_DONE_TRANSITION_ID: ${{ vars.JIRA_DONE_TRANSITION_ID }}
+          JIRA_KEY: ${{ steps.jira.outputs.key }}
+        run: |
+          if [[ -z "$JIRA_DONE_TRANSITION_ID" || -z "$JIRA_BASE_URL" || -z "$JIRA_EMAIL" || -z "$JIRA_API_TOKEN" ]]; then
+            echo "Done transition not configured; Jira remains open for explicit closure."
+            exit 0
+          fi
+          curl --fail-with-body -sS \
+            -u "$JIRA_EMAIL:$JIRA_API_TOKEN" \
+            -H 'Content-Type: application/json' \
+            -X POST "$JIRA_BASE_URL/rest/api/3/issue/$JIRA_KEY/transitions" \
+            --data "{\"transition\":{\"id\":\"$JIRA_DONE_TRANSITION_ID\"}}"
