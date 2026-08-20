@@ -8,20 +8,16 @@ Maintain the public RSGE planner with a traceable human-in-the-loop process:
 
 ## Dedicated Jira project
 
-Daycare content governance uses a dedicated Jira project:
+Daycare content governance uses the dedicated Jira project that now exists in the connected Atlassian site:
 
-- **Project name:** Daycare
-- **Project key:** `DAYCARE`
+- **Project name:** RSGE Recognition Planner
+- **Project key:** `RSGE`
 - **Purpose:** website accuracy reports, regulatory research, proposed content changes, HITL approvals, deployment traceability and closure.
+- **Current issue types:** Workstream, Task, Sub-task.
 
-Do not mix Daycare governance work into unrelated Jira projects such as EAID or PCA.
+Do not mix RSGE planner governance work into unrelated Jira projects such as EAID or PCA.
 
-Recommended issue use:
-
-- **Bug** — alleged factual or regulatory inaccuracy.
-- **Task** — maintenance, clarification, source refresh or operational work.
-- **Story** — larger user-facing improvement.
-- **Epic** — optional grouping for major themes such as Recognition, Financial Model, Compliance or Automation.
+Because the current RSGE project does not expose a `Bug` issue type, factual/regulatory inaccuracy reports are represented as **Task** items with classification labels.
 
 ## Control principles
 
@@ -36,7 +32,7 @@ Recommended issue use:
 
 | State | Owner | Exit condition |
 | --- | --- | --- |
-| Reported | Intake automation | DAYCARE Jira item created with GitHub report linked |
+| Reported | Intake automation | RSGE Jira Task created with GitHub report linked |
 | Researching | Research agent | Sources collected and claim assessed |
 | Needs evidence | Human / reporter | Missing or conflicting authoritative evidence resolved |
 | Change proposed | Research agent | Draft PR created with evidence and impact statement |
@@ -77,12 +73,12 @@ A research-agent PR must include the following checklist and remain unmerged unt
 - [ ] Conflicting sources disclosed.
 - [ ] Calculator/deadline implications assessed.
 - [ ] Change is the minimum necessary correction.
-- [ ] Jira issue linked.
+- [ ] RSGE Jira issue linked.
 - [ ] Human reviewer approved.
 
 ## Jira mapping
 
-Recommended Jira issue type: **Bug** for an alleged factual inaccuracy, **Task** for clarification or maintenance.
+Current intake issue type: **Task**.
 
 Recommended labels:
 
@@ -102,6 +98,14 @@ Evidence should also retain:
 - PR URL
 - Deployed commit SHA
 
+## Initial implementation backlog
+
+- `RSGE-1` — Establish HITL content-governance pipeline
+- `RSGE-2` — Wire website accuracy reports into RSGE Jira intake
+- `RSGE-3` — Implement research-agent evidence workflow
+- `RSGE-4` — Enforce HITL pull-request approval gate
+- `RSGE-5` — Trace deployment and close Jira after approved merge
+
 ## Secrets and runtime configuration
 
 The GitHub workflows use repository secrets rather than hard-coded credentials.
@@ -111,8 +115,9 @@ Expected configuration:
 - `JIRA_BASE_URL` — `https://junip1dev.atlassian.net`
 - `JIRA_EMAIL` — service-account email
 - `JIRA_API_TOKEN` — service-account API token
-- `JIRA_PROJECT_KEY` — optional override; defaults to `DAYCARE`
-- `OPENAI_API_KEY` — only if the research-agent workflow is enabled
+- `JIRA_PROJECT_KEY` — optional override; defaults to `RSGE`
+- `RESEARCH_AGENT_WEBHOOK_URL` — optional research-agent integration endpoint
+- `OPENAI_API_KEY` — only if an OpenAI-backed research-agent runtime is enabled
 
 Do not place credentials in the repository.
 
