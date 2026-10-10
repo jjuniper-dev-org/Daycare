@@ -4,36 +4,60 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Contact | Karen's Home Daycare</title>
+  <meta name="description" content="Contact Karen's Home Daycare in Chelsea to ask about openings or arrange a visit.">
+  <meta property="og:title" content="Contact | Karen's Home Daycare">
+  <meta property="og:description" content="Contact Karen's Home Daycare in Chelsea to ask about openings or arrange a visit.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header>
   <div class="bar">
     <a class="brand" href="index.html">Karen's Home Daycare</a>
-    <nav>
+    <nav aria-label="Main">
       <a href="index.html">Home</a>
       <a href="about.html">About</a>
       <a href="programs.html">Programs and Hours</a>
-      <a class="active" href="contact.html">Contact</a>
+      <a href="guide.html">Parent Guide</a>
+      <a class="active" aria-current="page" href="contact.html">Contact</a>
     </nav>
   </div>
 </header>
-<main>
-  <h1>Contact and book a visit</h1>
-  <p>We would love to meet you and your child. Reach out to ask about openings or to arrange a visit.</p>
+<main id="main">
+<h1>Contact and book a visit</h1>
+<p>We would love to meet you and your child. Reach out to ask about openings or to arrange a visit.</p>
 
-  <p id="c-empty" class="card">Contact details are being added. Please check back shortly.</p>
+<p id="c-empty" class="card">Contact details are being added. Please check back shortly.</p>
 
-  <div class="grid">
-    <div class="card" id="c-phone" hidden><h3>Phone</h3><p><a href="#"></a></p></div>
-    <div class="card" id="c-email" hidden><h3>Email</h3><p><a href="#"></a></p></div>
-    <div class="card" id="c-facebook" hidden><h3>Facebook</h3><p><a href="#"></a></p></div>
-  </div>
+<div class="grid">
+  <div class="card" id="c-phone" hidden><h3>Phone</h3><p><a href="#"></a></p></div>
+  <div class="card" id="c-email" hidden><h3>Email</h3><p><a href="#"></a></p></div>
+  <div class="card" id="c-facebook" hidden><h3>Facebook</h3><p><a href="#"></a></p></div>
+</div>
 
-  <h2>Location</h2>
-  <p>Chelsea, Quebec. The full address is shared when you get in touch.</p>
+<h2>Location</h2>
+<p>Chelsea, Quebec. The full address is shared when you get in touch.</p>
+
+<h2>Before you visit</h2>
+<p>Not sure what to ask? Our <a href="choosing.html">questions to ask any daycare</a> are a good place to start.</p>
 </main>
-<footer>Karen's Home Daycare &middot; Chelsea</footer>
+<footer>
+  <div class="fgrid">
+    <div>
+      <strong>Karen's Home Daycare</strong><br>
+      Chelsea, Quebec
+    </div>
+    <div id="f-contact" hidden>
+      <p id="f-phone" hidden>Phone: <a href="#"></a></p>
+      <p id="f-email" hidden>Email: <a href="#"></a></p>
+      <p id="f-hours" hidden>Hours: <span></span></p>
+    </div>
+    <div>
+      <a class="btn" href="contact.html">Book a visit</a>
+      <p><a id="f-facebook" href="#" hidden>Find us on Facebook</a></p>
+    </div>
+  </div>
+</footer>
 <script src="config.js"></script>
 <script src="script.js"></script>
 </body>

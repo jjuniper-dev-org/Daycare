@@ -4,34 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Programs and Hours | Karen's Home Daycare</title>
+  <meta name="description" content="Ages, hours, and openings at Karen's Home Daycare in Chelsea.">
+  <meta property="og:title" content="Programs and Hours | Karen's Home Daycare">
+  <meta property="og:description" content="Ages, hours, and openings at Karen's Home Daycare in Chelsea.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header>
   <div class="bar">
     <a class="brand" href="index.html">Karen's Home Daycare</a>
-    <nav>
+    <nav aria-label="Main">
       <a href="index.html">Home</a>
       <a href="about.html">About</a>
-      <a class="active" href="programs.html">Programs and Hours</a>
+      <a class="active" aria-current="page" href="programs.html">Programs and Hours</a>
+      <a href="guide.html">Parent Guide</a>
       <a href="contact.html">Contact</a>
     </nav>
   </div>
 </header>
-<main>
-  <h1>Programs and Hours</h1>
-  <p>Ages, hours, and current openings are listed below once confirmed. For anything else, including fees, please get in touch.</p>
+<main id="main">
+<h1>Programs and Hours</h1>
+<p>Ages, hours, and current openings are listed below once confirmed. For anything else, including fees, please get in touch.</p>
 
-  <table>
-    <tr id="p-ages" hidden><th>Ages accepted</th><td></td></tr>
-    <tr id="p-hours" hidden><th>Hours</th><td></td></tr>
-    <tr id="p-openings" hidden><th>Openings</th><td></td></tr>
-    <tr><th>Fees and availability</th><td>Contact us for current information</td></tr>
-  </table>
+<table>
+  <tr id="p-ages" hidden><th scope="row">Ages accepted</th><td></td></tr>
+  <tr id="p-hours" hidden><th scope="row">Hours</th><td></td></tr>
+  <tr id="p-openings" hidden><th scope="row">Openings</th><td></td></tr>
+  <tr><th scope="row">Fees and availability</th><td>Contact us for current information</td></tr>
+</table>
 
-  <p><a class="btn" href="contact.html">Ask about openings</a></p>
+<section class="cta">
+  <h2>Ask about openings</h2>
+  <p>Tell us your child's age and the days you need, and we will let you know what is available.</p>
+  <a class="btn" href="contact.html">Book a visit</a>
+</section>
 </main>
-<footer>Karen's Home Daycare &middot; Chelsea</footer>
+<footer>
+  <div class="fgrid">
+    <div>
+      <strong>Karen's Home Daycare</strong><br>
+      Chelsea, Quebec
+    </div>
+    <div id="f-contact" hidden>
+      <p id="f-phone" hidden>Phone: <a href="#"></a></p>
+      <p id="f-email" hidden>Email: <a href="#"></a></p>
+      <p id="f-hours" hidden>Hours: <span></span></p>
+    </div>
+    <div>
+      <a class="btn" href="contact.html">Book a visit</a>
+      <p><a id="f-facebook" href="#" hidden>Find us on Facebook</a></p>
+    </div>
+  </div>
+</footer>
 <script src="config.js"></script>
 <script src="script.js"></script>
 </body>
