@@ -44,3 +44,24 @@
   var fb = byId("f-facebook");
   if (fb && S.facebook) { fb.href = S.facebook; fb.hidden = false; }
 })();
+
+// Text size controls (A- / A+). Remembered per browser when storage is available.
+(function () {
+  var sizes = [90, 100, 115, 130, 150];
+  var i = 1;
+  try {
+    var saved = parseInt(localStorage.getItem("fs-step"), 10);
+    if (saved >= 0 && saved < sizes.length) i = saved;
+  } catch (e) {}
+  function apply() {
+    document.documentElement.style.fontSize = sizes[i] + "%";
+    try { localStorage.setItem("fs-step", String(i)); } catch (e) {}
+    var m = document.getElementById("fs-minus"), pl = document.getElementById("fs-plus");
+    if (m) m.disabled = i === 0;
+    if (pl) pl.disabled = i === sizes.length - 1;
+  }
+  var minus = document.getElementById("fs-minus"), plus = document.getElementById("fs-plus");
+  if (minus) minus.addEventListener("click", function () { if (i > 0) { i--; apply(); } });
+  if (plus) plus.addEventListener("click", function () { if (i < sizes.length - 1) { i++; apply(); } });
+  apply();
+})();

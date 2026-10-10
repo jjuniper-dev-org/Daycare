@@ -132,3 +132,45 @@ a:focus-visible, .btn:focus-visible { outline: 3px solid var(--ink); outline-off
 }
 .fgrid p { margin: 4px 0; }
 footer .btn { color: #fff; }
+
+/* ---- Text size tools and steps ---- */
+.tools { display: flex; gap: 6px; order: 2; }
+.tools button {
+  min-height: 40px;
+  min-width: 44px;
+  border: 1px solid #e3d2bf;
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tools button:disabled { opacity: 0.45; cursor: default; }
+.tools button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+nav { order: 3; width: 100%; }
+.steps { list-style: none; counter-reset: step; padding: 0; margin: 12px 0 8px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.steps li {
+  counter-increment: step;
+  background: var(--card);
+  border: 1px solid #f0e2d2;
+  border-radius: 12px;
+  padding: 16px 16px 16px 56px;
+  position: relative;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 720px) { nav { order: 2; width: auto; } .tools { order: 3; } }
