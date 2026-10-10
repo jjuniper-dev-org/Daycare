@@ -4,6 +4,6 @@ window.SITE = {
   email: "",          // e.g. "karen@example.com"
   facebook: "",       // e.g. "https://www.facebook.com/karensdaycare"
   ages: "",           // e.g. "18 months to 5 years"
-  hours: "",          // e.g. "Monday to Friday, 7:30 am to 5:30 pm"
+  hours: "Monday to Friday, 7:30 am to 4:30 pm",
   openings: ""        // e.g. "2 spots available"
 };
